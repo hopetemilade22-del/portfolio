@@ -776,6 +776,105 @@ p { margin: 0; }
 #cf-strategy:checked ~ .work-grid .work-card:not([data-category="Strategy"]) { display: none; }
 #cf-strategy:checked ~ .work-grid .work-detail:not([data-category="Strategy"]) { display: none; }
 
+
+
+/* ============================================================
+   MOTION LAYER - entrance choreography, marquee, micro-motion
+   ============================================================ */
+
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--green), var(--green-bright));
+  transform: scaleX(0);
+  transform-origin: left center;
+  z-index: 200;
+  will-change: transform;
+}
+
+.marquee {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--black-soft);
+  overflow: hidden;
+  padding: clamp(1.1rem, 2.5vw, 1.6rem) 0;
+}
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.6rem, 4vw, 3rem);
+  width: max-content;
+}
+.marquee-item {
+  font-family: var(--display);
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--white);
+}
+.marquee-star {
+  color: var(--green-bright);
+  font-size: 1.05rem;
+}
+
+.hero-eyebrow .dot { position: relative; }
+.hero-eyebrow .dot::after {
+  content: "";
+  position: absolute;
+  top: -4px; left: -4px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--green-bright);
+  animation: ping 1.9s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(26px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes photo-in {
+    from { opacity: 0; transform: scale(0.95) translateY(18px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes drop-in {
+    from { opacity: 0; transform: translateY(-18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes marker {
+    to { background-size: 100% 0.32em; }
+  }
+  @keyframes ping {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    70%, 100% { transform: scale(2.1); opacity: 0; }
+  }
+  @keyframes marquee-x {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .site-header { animation: drop-in 0.8s var(--ease) both; }
+  .hero-eyebrow { animation: rise 0.8s var(--ease) 0.15s both; }
+  .hero h1 { animation: rise 0.9s var(--ease) 0.3s both; }
+  .hero-text { animation: rise 0.9s var(--ease) 0.5s both; }
+  .hero-cta { animation: rise 0.9s var(--ease) 0.65s both; }
+  .hero-stats { animation: rise 0.9s var(--ease) 0.8s both; }
+  .hero-photo { animation: photo-in 1.1s var(--ease) 0.35s both; }
+
+  .hero h1 > span {
+    width: fit-content;
+    background-image: linear-gradient(var(--yellow), var(--yellow));
+    background-repeat: no-repeat;
+    background-position: 0 94%;
+    background-size: 0% 0.32em;
+    animation: marker 0.7s var(--ease) 1.25s forwards;
+  }
+
+  .marquee-track { animation: marquee-x 36s linear infinite; }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+}
 </style>
 <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
 </head>
@@ -831,7 +930,14 @@ p { margin: 0; }
     </div>
   </section>
 
-  <!-- ABOUT -->
+  <!-- MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item">Content Creation</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Social Media</span><span class="marquee-star">&#10022;</span><span class="marquee-item">SEO</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Email Marketing</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Canva Design</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Brand Support</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Content Creation</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Social Media</span><span class="marquee-star">&#10022;</span><span class="marquee-item">SEO</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Email Marketing</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Canva Design</span><span class="marquee-star">&#10022;</span><span class="marquee-item">Brand Support</span><span class="marquee-star">&#10022;</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
   <section class="section" id="about">
     <div class="wrap reveal">
       <span class="section-num">01 / About</span>
@@ -1348,6 +1454,53 @@ filterRow.addEventListener("click", (e) => {
   });
 });
 
+
+
+/* ============================================================
+   MOTION LAYER - scroll progress bar + stat count-up
+   ============================================================ */
+(function () {
+  var bar = document.createElement("div");
+  bar.className = "scroll-progress";
+  document.body.appendChild(bar);
+  var update = function () {
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var p = max > 0 ? doc.scrollTop / max : 0;
+    if (p < 0) p = 0;
+    if (p > 1) p = 1;
+    bar.style.transform = "scaleX(" + p + ")";
+  };
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  update();
+})();
+
+(function () {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var nums = document.querySelectorAll(".stat-num");
+  if (!nums.length) return;
+  setTimeout(function () {
+    nums.forEach(function (el) {
+      var raw = (el.textContent || "").trim();
+      var m = raw.match(/^([0-9]+(?:[.][0-9]+)?)(.*)$/);
+      if (!m) return;
+      var target = parseFloat(m[1]);
+      var suffix = m[2];
+      var decimals = m[1].indexOf(".") > -1 ? 1 : 0;
+      var dur = 1500;
+      var start = null;
+      var step = function (now) {
+        if (start === null) start = now;
+        var p = Math.min((now - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = (target * eased).toFixed(decimals) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }, 950);
+})();
 </script>
 </body>
 </html>
